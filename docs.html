@@ -1,0 +1,78 @@
+<!doctype html>
+
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>FFPE Documentation</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+<header class="header">
+  <div class="logo">FFPE</div>
+  <div class="nav">Developer Documentation</div>
+</header>
+
+<section class="container">
+
+<h1>FFPE API Documentation</h1>
+<p class="subtitle">Fuel Fraud Pattern Engine Backend Reference</p>
+
+<div class="card">
+<h2>Endpoint</h2>
+<pre>
+POST /detect
+</pre>
+</div>
+
+<div class="card">
+<h2>Request Body</h2>
+<pre>
+{
+  "tank": 120,
+  "ecu": 118,
+  "expected": 120,
+  "bus": "Campus Bus 01",
+  "gps": "https://maps.google.com/?q=17.3850,78.4867"
+}
+</pre>
+</div>
+
+<div class="card">
+<h2>Response — Normal</h2>
+<pre>
+{
+  "status": "✅ NORMAL"
+}
+</pre>
+</div>
+
+<div class="card">
+<h2>Response — Fraud Detected</h2>
+<pre>
+{
+  "status": "🚨 FRAUD DETECTED"
+}
+</pre>
+</div>
+
+<div class="card">
+<h2>Fraud Detection Logic</h2>
+<p>
+Fraud is detected when:
+</p>
+<ul>
+  <li>Tank fuel mismatch ≥ 5 liters</li>
+  <li>ECU vs expected fuel difference ≥ 5 liters</li>
+</ul>
+</div>
+
+</section>
+
+<footer>
+© 2026 FFPE — Fuel Fraud Pattern Engine
+</footer>
+
+</body>
+</html>

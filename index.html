@@ -1,0 +1,157 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>FFPE Dashboard</title>
+<link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+<header class="header">
+  <div class="logo">FFPE</div>
+  <div class="nav">Fuel Fraud Pattern Engine</div>
+</header>
+
+<section class="container">
+
+<h1>Fuel Fraud Detection Dashboard</h1>
+<p class="subtitle">Fleet Monitoring System</p>
+
+<div class="card-container">
+
+<div class="card">
+<label>Tank Fuel (L)</label>
+<input id="tankFuel" type="number" readonly>
+</div>
+
+<div class="card">
+<label>ECU Fuel Consumed (L)</label>
+<input id="ecuFuel" type="number" readonly>
+</div>
+
+<div class="card">
+<label>Expected Fuel Level (L)</label>
+<input id="expectedFuel" type="number" readonly>
+</div>
+
+<div class="card">
+<label>Bus Route</label>
+<select id="busRoute" disabled>
+<option value="Campus Bus 8">Campus Bus 8</option>
+<option value="Campus Bus 22">Campus Bus 22</option>
+</select>
+</div>
+
+</div>
+
+<div id="liveStatus" style="margin:20px; font-weight:bold;">
+System Status: 🟢 Connecting...
+</div>
+
+<button onclick="detectFraud()" class="analyze-btn">
+Manual Analyze (Optional)
+</button>
+
+<div id="result" class="result-box"></div>
+
+</section>
+
+<script>
+
+/* Initial message when page loads */
+window.onload = () => {
+    document.getElementById("result").innerText = "Waiting for Data...";
+    document.getElementById("result").style.color = "orange";
+};
+
+/* Fetch latest data from backend */
+async function fetchLatestData() {
+
+try {
+    const response = await fetch("http://127.0.0.1:5000/latest");
+
+    if (!response.ok) throw new Error("Server error");
+
+    const data = await response.json();
+
+    if (data.tank !== undefined)
+        document.getElementById("tankFuel").value = data.tank;
+
+    if (data.ecu !== undefined)
+        document.getElementById("ecuFuel").value = data.ecu;
+
+    if (data.expected !== undefined)
+        document.getElementById("expectedFuel").value = data.expected;
+
+    if (data.bus)
+        document.getElementById("busRoute").value = data.bus;
+
+    const resultBox = document.getElementById("result");
+
+    if (data.status) {
+        resultBox.innerText = data.status;
+
+        if (data.status.includes("FRAUD")) {
+            resultBox.style.color = "red";
+        } else {
+            resultBox.style.color = "lime";
+        }
+    }
+
+    document.getElementById("liveStatus").innerText =
+        "System Status: 🟢 Live Monitoring";
+
+} catch (error) {
+
+    document.getElementById("liveStatus").innerText =
+        "System Status: 🔴 Backend Offline";
+}
+
+}
+
+/* Auto refresh every 3 seconds */
+setInterval(fetchLatestData, 3000);
+
+
+/* Manual analyze button */
+async function detectFraud() {
+
+const tank = document.getElementById("tankFuel").value;
+const ecu = document.getElementById("ecuFuel").value;
+const expected = document.getElementById("expectedFuel").value;
+const route = document.getElementById("busRoute").value;
+
+let gps = "";
+
+if(route === "Campus Bus 8"){
+   gps = "https://tinyurl.com/route8gps";
+}
+else if(route === "Campus Bus 22"){
+   gps = "https://tinyurl.com/26j9cd59";
+}
+
+try {
+    await fetch("http://127.0.0.1:5000/detect", {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({
+            api_key: "FFPE2026SECRET",
+            tank: tank,
+            ecu: ecu,
+            expected: expected,
+            bus: route,
+            gps: gps
+        })
+    });
+
+} catch (error) {
+    console.log("Manual analyze failed");
+}
+
+}
+
+</script>
+
+</body>
+</html>
